@@ -1,11 +1,12 @@
 import os
-
 from pathlib import Path
-BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-+rf7hl@nd1)i^+%z*ip!6i3n1sn$(5ja()#yw-f426en^e!!)f'
-DEBUG = True
 
-ALLOWED_HOSTS = []
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'test')
+DEBUG = bool(int(os.environ.get('DEBUG', 0))) # 0: False
+ALLOWED_HOSTS = ['*']
+
 
 DJANGO_SYSTEM_APPS = [
     'django.contrib.admin',
@@ -18,10 +19,23 @@ DJANGO_SYSTEM_APPS = [
 ]
 
 CUSTOM_USER_APPS = [
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
+    'comments.apps.CommentsConfig',
+    'reactions.apps.ReactionsConfig',
+    'subscriptions.apps.SubscriptionsConfig',
+    'videos.apps.VideosConfig',
+    'rest_framework', # DRF
+    'drf_spectacular' # DRF-spectacular
 ]
 
+# docker-compose run --rm app sh -c 'python manage.py makemigrations'
+# docker-compose run --rm app sh -c 'python manage.py migrate'
+
 INSTALLED_APPS = DJANGO_SYSTEM_APPS + CUSTOM_USER_APPS
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -109,3 +123,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # custom user model
 AUTH_USER_MODEL = 'users.User'
+
+STATIC_URL = '/static/static/'
+MEDIA_URL = '/static/media/'
+
+MEDIA_ROOT = '/vol/web/media'
+STATIC_ROOT = '/vol/web/static'
